@@ -3,7 +3,6 @@ package bogdan_shvets.eleks.com.a3dmenulibrary;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
-import android.os.SystemClock;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -112,6 +111,9 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
 
 	private int program;
 
+	private float xAngle;
+	private float yAngle;
+
 	public CubeRenderer() {
 		vertexBuffer = ByteBuffer.allocateDirect(coordinates.length * ShaderHelper.FLOAT_BYTES_SIZE)
 				.order(ByteOrder.nativeOrder()).asFloatBuffer();
@@ -178,11 +180,10 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
 	public void onDrawFrame(GL10 gl) {
 		GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
 
-		long time = SystemClock.uptimeMillis() % 10000L;
-		float angleInDegrees = (360.0f / 10000.0f) * ((int) time);
-
 		Matrix.setIdentityM(mModelMatrix, 0);
-		Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 1.0f, 1.0f, 1.0f);
+
+		Matrix.rotateM(mModelMatrix, 0, xAngle, 0.0f, 1.0f, 0.0f);
+		Matrix.rotateM(mModelMatrix, 0, yAngle, 1.0f, 0.0f, 0.0f);
 		drawCube();
 	}
 
@@ -204,5 +205,21 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
 
 		drawListBuffer.position(0);
 		glDrawElements(GL_TRIANGLES, drawList.length, GL_UNSIGNED_SHORT, drawListBuffer);
+	}
+
+	public float getyAngle() {
+		return yAngle;
+	}
+
+	public void setyAngle(float yAngle) {
+		this.yAngle = yAngle;
+	}
+
+	public float getxAngle() {
+		return xAngle;
+	}
+
+	public void setxAngle(float xAngle) {
+		this.xAngle = xAngle;
 	}
 }
