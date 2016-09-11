@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="F:\java\3DMenu\app\build\intermediates\exploded-aar\com.android.support\support-vector-drawable\23.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="24.0.0"
+        sha1="c2c594cace5d83a3227b2b6e658ecbfd586d3ed9">
+        <dex dex="F:\java\3DMenu\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-support-vector-drawable-23.4.0_eb0eb4b8c895888fbfe2887cc9191d229a4a6e0e\classes.dex" />
+    </item>
+    <item
+        jar="F:\java\3DMenu\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.4.0\jars\libs\internal_impl-23.4.0.jar"
+        jumboMode="true"
+        revision="24.0.0"
+        sha1="ea3c07504d2c8f4b13aa17c45c1b68ed9c1c3674">
+        <dex dex="F:\java\3DMenu\app\build\intermediates\transforms\dex\debug\folders\1000\10\internal_impl-23.4.0_929671ff3039a388bd2926e633cb87a4f6e257de\classes.dex" />
+    </item>
+    <item
+        jar="F:\java\3DMenu\app\build\intermediates\exploded-aar\com.android.support\animated-vector-drawable\23.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="24.0.0"
+        sha1="de4db3785756bfb0915a9f59a9b3f2fea7407be4">
+        <dex dex="F:\java\3DMenu\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-animated-vector-drawable-23.4.0_195068b67d28ba0a33ca7debeca77e854cc745c0\classes.dex" />
+    </item>
+    <item
+        jar="F:\Android\sdk\extras\android\m2repository\com\android\support\support-annotations\23.4.0\support-annotations-23.4.0.jar"
+        jumboMode="true"
+        revision="24.0.0"
+        sha1="ffbe55fdb2bb456b1485831706a9eac3300bb6b8">
+        <dex dex="F:\java\3DMenu\app\build\intermediates\transforms\dex\debug\folders\1000\10\support-annotations-23.4.0_8028dfe3be197b741d6cb061f70adbc0413dc2bb\classes.dex" />
+    </item>
+    <item
+        jar="F:\java\3DMenu\app\build\intermediates\incremental-classes\debug\instant-run-bootstrap.jar"
+        jumboMode="true"
+        revision="24.0.0"
+        sha1="cb5b07be72d7740cdf3987ef773e441dfe68af12">
+        <dex dex="F:\java\3DMenu\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run-bootstrap_9e21a34c1b94ec0b117cd6a4d7909ae68a5e3b72\classes.dex" />
+    </item>
+    <item
+        jar="F:\java\3DMenu\app\build\intermediates\incremental-runtime-classes\debug\instant-run.jar"
+        jumboMode="true"
+        revision="24.0.0"
+        sha1="41811b58c67cbd3498988109c50c3794f3f9a7f4">
+        <dex dex="F:\java\3DMenu\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run_7fba39064982f91b4a80080e3dac797db59ba9ad\classes.dex" />
+    </item>
+    <item
+        jar="F:\java\3DMenu\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="24.0.0"
+        sha1="67bd36ee9340ec7c254108936ad16b24bed160cc">
+        <dex dex="F:\java\3DMenu\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-support-v4-23.4.0_a9ac9c5989036f0b15eeb5055d96ec275a83cb56\classes.dex" />
+    </item>
+    <item
+        jar="F:\java\3DMenu\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\23.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="24.0.0"
+        sha1="548f06de403a9409f00554b3ee12a9fdea0e236c">
+        <dex dex="F:\java\3DMenu\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-appcompat-v7-23.4.0_f43e73cd36550b2bc155fe74b0d2ef7ca18ea13e\classes.dex" />
+    </item>
+
+</items>

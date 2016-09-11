@@ -14,13 +14,13 @@ import static android.opengl.GLES20.GL_FRAGMENT_SHADER;
 import static android.opengl.GLES20.GL_LINK_STATUS;
 import static android.opengl.GLES20.GL_VERTEX_SHADER;
 import static android.opengl.GLES20.glAttachShader;
-import static android.opengl.GLES20.glBindAttribLocation;
 import static android.opengl.GLES20.glCompileShader;
 import static android.opengl.GLES20.glCreateProgram;
 import static android.opengl.GLES20.glCreateShader;
 import static android.opengl.GLES20.glDeleteProgram;
 import static android.opengl.GLES20.glDeleteShader;
 import static android.opengl.GLES20.glGetProgramiv;
+import static android.opengl.GLES20.glGetShaderInfoLog;
 import static android.opengl.GLES20.glGetShaderiv;
 import static android.opengl.GLES20.glLinkProgram;
 import static android.opengl.GLES20.glShaderSource;
@@ -40,6 +40,7 @@ public class ShaderHelper {
 	private static final String PROGRAM_ERROR = "PROGRAM_ERROR";
 
 	public static final int FLOAT_BYTES_SIZE = 4;
+	public static final int SHORT_BYTES_SIZE = 2;
 
 	public static int compileShader(String shaderCode, @ShaderType int shaderType) {
 		int shader = glCreateShader(shaderType);
@@ -51,7 +52,9 @@ public class ShaderHelper {
 		glGetShaderiv(shader, GL_COMPILE_STATUS, compileStatusBuffer);
 
 		if (compileStatusBuffer.get(0) == 0) {
-			Log.e(SHADER_ERROR, "Shader compilation error");
+			Log.e(SHADER_ERROR, "Shader compilation error " +
+					(shaderType == GL_VERTEX_SHADER ? "VERTEX" : "FRAGMENT" +
+					"\n " + glGetShaderInfoLog(shader)));
 
 			glDeleteShader(shader);
 			return 0;
@@ -60,15 +63,11 @@ public class ShaderHelper {
 		return shader;
 	}
 
-	public static int linkProgram(int vertexShader, int fragmentShader, String... attribs) {
+	public static int linkProgram(int vertexShader, int fragmentShader) {
 		int program = glCreateProgram();
 
 		glAttachShader(program, vertexShader);
 		glAttachShader(program, fragmentShader);
-
-		for (int i = 0; i < attribs.length; i++) {
-			glBindAttribLocation(program, i, attribs[i]);
-		}
 
 		glLinkProgram(program);
 

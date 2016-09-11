@@ -8,17 +8,18 @@ import android.os.SystemClock;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import static android.opengl.GLES20.GL_FLOAT;
-import static android.opengl.GLES20.GL_TRIANGLE_STRIP;
-import static android.opengl.GLES20.glDrawArrays;
+import static android.opengl.GLES20.GL_TRIANGLES;
+import static android.opengl.GLES20.GL_UNSIGNED_SHORT;
+import static android.opengl.GLES20.glDrawElements;
 import static android.opengl.GLES20.glEnableVertexAttribArray;
 import static android.opengl.GLES20.glGetAttribLocation;
 import static android.opengl.GLES20.glGetUniformLocation;
-import static android.opengl.GLES20.glUniform4f;
 import static android.opengl.GLES20.glUseProgram;
 import static android.opengl.GLES20.glVertexAttribPointer;
 
@@ -32,22 +33,26 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
 			"uniform mat4 u_MVPMatrix;      \n" +
 
 			"attribute vec4 a_Position;     \n" +
+			"attribute vec4 a_Color;     	\n" +
+			"varying   vec4 v_Color;     	\n" +
 
 			"void main()                    \n" +
 			"{                              \n" +
-			"gl_Position = a_Position;		\n" +
+			"	gl_Position = a_Position;	\n" +
 			"   gl_Position = u_MVPMatrix   \n" +
 			"               * a_Position;   \n" +
+
+			"	v_Color = a_Color;			\n" +
 			"}                              \n";
 
 	final String fragmentShader =
 			"precision mediump float;       \n" +
 
-			"uniform vec4 u_Color;          \n" +
+			"varying vec4 v_Color;          \n" +
 
 			"void main()                    \n" +
 			"{                              \n" +
-			"   gl_FragColor = u_Color;     \n" +
+			"   gl_FragColor = v_Color;     \n" +
 			"}                              \n";
 
 	//	Matrices
@@ -62,57 +67,48 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
 	private int mColorIndex;
 
 	private static final int COORDINATES_PER_VERTEX = 3;
+	private static final int COLORS_PER_VERTEX = 4;
+
 	private float[] coordinates = {
-			// Front face
-			-1.0f, 1.0f, 1.0f,
-			-1.0f, -1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f,
-			-1.0f, -1.0f, 1.0f,
-			1.0f, -1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f,
+			 1.0f, 	 1.0f, 	-1.0f,
+			-1.0f,	 1.0f,	-1.0f,
+			-1.0f,	-1.0f,	-1.0f,
+			 1.0f,	-1.0f,	-1.0f,
+			 1.0f, 	 1.0f, 	 1.0f,
+			-1.0f,	 1.0f,	 1.0f,
+			-1.0f,	-1.0f,	 1.0f,
+			 1.0f,	-1.0f,	 1.0f
+	};
 
-			// Right face
-			1.0f, 1.0f, 1.0f,
-			1.0f, -1.0f, 1.0f,
-			1.0f, 1.0f, -1.0f,
-			1.0f, -1.0f, 1.0f,
-			1.0f, -1.0f, -1.0f,
-			1.0f, 1.0f, -1.0f,
+	private float[] colors = {
+			1.0f, 0.0f, 0.0f, 1.0f,
+			0.0f, 1.0f, 0.0f, 1.0f,
+			0.0f, 0.0f, 1.0f, 1.0f,
+			1.0f, 1.0f, 0.0f, 1.0f,
+			0.0f, 1.0f, 1.0f, 1.0f,
+			1.0f, 0.0f, 1.0f, 1.0f,
+			0.0f, 0.0f, 0.0f, 1.0f,
+			1.0f, 1.0f, 1.0f, 1.0f
+	};
 
-			// Back face
-			1.0f, 1.0f, -1.0f,
-			1.0f, -1.0f, -1.0f,
-			-1.0f, 1.0f, -1.0f,
-			1.0f, -1.0f, -1.0f,
-			-1.0f, -1.0f, -1.0f,
-			-1.0f, 1.0f, -1.0f,
-
-			// Left face
-			-1.0f, 1.0f, -1.0f,
-			-1.0f, -1.0f, -1.0f,
-			-1.0f, 1.0f, 1.0f,
-			-1.0f, -1.0f, -1.0f,
-			-1.0f, -1.0f, 1.0f,
-			-1.0f, 1.0f, 1.0f,
-
-			// Top face
-			-1.0f, 1.0f, -1.0f,
-			-1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, -1.0f,
-			-1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, -1.0f,
-
-			// Bottom face
-			1.0f, -1.0f, -1.0f,
-			1.0f, -1.0f, 1.0f,
-			-1.0f, -1.0f, -1.0f,
-			1.0f, -1.0f, 1.0f,
-			-1.0f, -1.0f, 1.0f,
-			-1.0f, -1.0f, -1.0f
+	private short[] drawList = {
+			0, 1, 2,
+			0, 2, 3,
+			0, 7, 3,
+			0, 4, 7,
+			7, 6, 5,
+			7, 5, 4,
+			5, 4, 1,
+			1, 0, 4,
+			1, 2, 6,
+			1, 5, 6,
+			6, 2, 3,
+			6, 7, 3
 	};
 
 	private FloatBuffer vertexBuffer;
+	private FloatBuffer colorBuffer;
+	private ShortBuffer drawListBuffer;
 
 	private int program;
 
@@ -120,15 +116,26 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
 		vertexBuffer = ByteBuffer.allocateDirect(coordinates.length * ShaderHelper.FLOAT_BYTES_SIZE)
 				.order(ByteOrder.nativeOrder()).asFloatBuffer();
 		vertexBuffer.put(coordinates).position(0);
+
+		colorBuffer = ByteBuffer.allocateDirect(colors.length * ShaderHelper.FLOAT_BYTES_SIZE)
+				.order(ByteOrder.nativeOrder()).asFloatBuffer();
+		colorBuffer.put(colors).position(0);
+
+		drawListBuffer = ByteBuffer.allocateDirect(drawList.length * ShaderHelper.SHORT_BYTES_SIZE)
+				.order(ByteOrder.nativeOrder()).asShortBuffer();
+		drawListBuffer.put(drawList).position(0);
 	}
 
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 		GLES20.glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
 
+//		GLES20.glEnable(GLES20.GL_CULL_FACE);
+		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+
 		final float eyeX = 0.0f;
 		final float eyeY = 0.0f;
-		final float eyeZ = -0.5f;
+		final float eyeZ = 3.0f;
 
 		final float lookX = 0.0f;
 		final float lookY = 0.0f;
@@ -149,7 +156,7 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
 
 		mMVPMatrixIndex = glGetUniformLocation(program, "u_MVPMatrix");
 		mPositionIndex = glGetAttribLocation(program, "a_Position");
-		mColorIndex = glGetUniformLocation(program, "u_Color");
+		mColorIndex = glGetAttribLocation(program, "a_Color");
 	}
 
 	@Override
@@ -175,23 +182,27 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
 		float angleInDegrees = (360.0f / 10000.0f) * ((int) time);
 
 		Matrix.setIdentityM(mModelMatrix, 0);
-		Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 1.0f, 0.0f, 1.0f);
-		drawRectangle();
+		Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 1.0f, 1.0f, 1.0f);
+		drawCube();
 	}
 
-	private void drawRectangle() {
+	private void drawCube() {
 		vertexBuffer.position(0);
 		glVertexAttribPointer(mPositionIndex, COORDINATES_PER_VERTEX, GL_FLOAT, false,
 				COORDINATES_PER_VERTEX * ShaderHelper.FLOAT_BYTES_SIZE, vertexBuffer);
 		glEnableVertexAttribArray(mPositionIndex);
 
-		glUniform4f(mColorIndex, 0.5f, 0.5f, 1.0f, 0.5f);
+		colorBuffer.position(0);
+		glVertexAttribPointer(mColorIndex, COLORS_PER_VERTEX, GL_FLOAT, false,
+				COLORS_PER_VERTEX * ShaderHelper.FLOAT_BYTES_SIZE, colorBuffer);
+		glEnableVertexAttribArray(mColorIndex);
 
 		Matrix.multiplyMM(mMVPMatrix, 0, mViewMatrix, 0, mModelMatrix, 0);
 		Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mMVPMatrix, 0);
 
 		GLES20.glUniformMatrix4fv(mMVPMatrixIndex, 1, false, mMVPMatrix, 0);
 
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, coordinates.length / COORDINATES_PER_VERTEX);
+		drawListBuffer.position(0);
+		glDrawElements(GL_TRIANGLES, drawList.length, GL_UNSIGNED_SHORT, drawListBuffer);
 	}
 }
