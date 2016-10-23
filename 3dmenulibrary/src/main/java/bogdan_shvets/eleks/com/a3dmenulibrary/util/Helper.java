@@ -1,5 +1,9 @@
-package bogdan_shvets.eleks.com.a3dmenulibrary;
+package bogdan_shvets.eleks.com.a3dmenulibrary.util;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.IntDef;
 import android.util.Log;
 
@@ -12,23 +16,31 @@ import java.nio.IntBuffer;
 import static android.opengl.GLES20.GL_COMPILE_STATUS;
 import static android.opengl.GLES20.GL_FRAGMENT_SHADER;
 import static android.opengl.GLES20.GL_LINK_STATUS;
+import static android.opengl.GLES20.GL_NEAREST;
+import static android.opengl.GLES20.GL_TEXTURE_2D;
+import static android.opengl.GLES20.GL_TEXTURE_MAG_FILTER;
+import static android.opengl.GLES20.GL_TEXTURE_MIN_FILTER;
 import static android.opengl.GLES20.GL_VERTEX_SHADER;
 import static android.opengl.GLES20.glAttachShader;
+import static android.opengl.GLES20.glBindTexture;
 import static android.opengl.GLES20.glCompileShader;
 import static android.opengl.GLES20.glCreateProgram;
 import static android.opengl.GLES20.glCreateShader;
 import static android.opengl.GLES20.glDeleteProgram;
 import static android.opengl.GLES20.glDeleteShader;
+import static android.opengl.GLES20.glGenTextures;
 import static android.opengl.GLES20.glGetProgramiv;
 import static android.opengl.GLES20.glGetShaderInfoLog;
 import static android.opengl.GLES20.glGetShaderiv;
 import static android.opengl.GLES20.glLinkProgram;
 import static android.opengl.GLES20.glShaderSource;
+import static android.opengl.GLES20.glTexParameteri;
+import static android.opengl.GLUtils.texImage2D;
 
 /**
  * Created by Богдан on 09.08.2016
  */
-public class ShaderHelper {
+public class Helper {
 
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.PARAMETER)
@@ -54,7 +66,7 @@ public class ShaderHelper {
 		if (compileStatusBuffer.get(0) == 0) {
 			Log.e(SHADER_ERROR, "Shader compilation error " +
 					(shaderType == GL_VERTEX_SHADER ? "VERTEX" : "FRAGMENT" +
-					"\n " + glGetShaderInfoLog(shader)));
+							"\n " + glGetShaderInfoLog(shader)));
 
 			glDeleteShader(shader);
 			return 0;
@@ -82,6 +94,34 @@ public class ShaderHelper {
 		}
 
 		return program;
+	}
+
+	public static int loadTexture(Context context, @DrawableRes int resourceId) {
+		final int[] textureHandle = new int[1];
+
+		glGenTextures(1, textureHandle, 0);
+
+		if (textureHandle[0] != 0) {
+			BitmapFactory.Options options = new BitmapFactory.Options();
+			options.inScaled = false;
+
+			Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resourceId, options);
+
+			glBindTexture(GL_TEXTURE_2D, textureHandle[0]);
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+			texImage2D(GL_TEXTURE_2D, 0, bitmap, 0);
+
+			bitmap.recycle();
+		}
+
+		if (textureHandle[0] == 0) {
+			Log.e(PROGRAM_ERROR, "Error loading texture");
+		}
+
+		return textureHandle[0];
 	}
 
 }

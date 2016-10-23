@@ -1,169 +1,148 @@
 package bogdan_shvets.eleks.com.a3dmenulibrary;
 
-import android.opengl.GLES20;
+import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.os.SystemClock;
+import android.view.View;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
+import java.util.Locale;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import static android.opengl.GLES20.GL_FLOAT;
-import static android.opengl.GLES20.GL_TRIANGLES;
-import static android.opengl.GLES20.GL_UNSIGNED_SHORT;
-import static android.opengl.GLES20.glDrawElements;
-import static android.opengl.GLES20.glEnableVertexAttribArray;
-import static android.opengl.GLES20.glGetAttribLocation;
-import static android.opengl.GLES20.glGetUniformLocation;
+import bogdan_shvets.eleks.com.a3dmenulibrary.util.Helper;
+
+import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
+import static android.opengl.GLES20.GL_DEPTH_BUFFER_BIT;
+import static android.opengl.GLES20.GL_DEPTH_TEST;
+import static android.opengl.GLES20.GL_FRAGMENT_SHADER;
+import static android.opengl.GLES20.GL_VERTEX_SHADER;
+import static android.opengl.GLES20.glClear;
+import static android.opengl.GLES20.glClearColor;
+import static android.opengl.GLES20.glEnable;
 import static android.opengl.GLES20.glUseProgram;
-import static android.opengl.GLES20.glVertexAttribPointer;
+import static android.opengl.GLES20.glViewport;
 
 /**
- * Created by Богдан on 10.09.2016
+ * Created by Богдан on 22.10.2016
  */
 public class CubeRenderer implements GLSurfaceView.Renderer {
 
-	//	Shaders
-	final String vertexShader =
-			"uniform mat4 u_MVPMatrix;      \n" +
+	private final static long ROTATION_TIME = 500;
 
-			"attribute vec4 a_Position;     \n" +
-			"attribute vec4 a_Color;     	\n" +
-			"varying   vec4 v_Color;     	\n" +
+	private static final int FRONT = 0;
+	private static final int LEFT = 1;
+	private static final int BACK = 2;
+	private static final int RIGHT = 3;
+	private static final int TOP = 4;
+	private static final int BOTTOM = 5;
 
-			"void main()                    \n" +
-			"{                              \n" +
-			"	gl_Position = a_Position;	\n" +
-			"   gl_Position = u_MVPMatrix   \n" +
-			"               * a_Position;   \n" +
+	private Rectangle[] mRectangles = {
+			new Rectangle(), new Rectangle(), new Rectangle(),
+			new Rectangle(), new Rectangle(), new Rectangle()
+	};
 
-			"	v_Color = a_Color;			\n" +
-			"}                              \n";
+	private final float[] mTextureCoordinates = {
+			0.0f, 1.0f,
+			1.0f, 1.0f,
+			0.0f, 0.0f,
+			1.0f, 0.0f
+	};
 
-	final String fragmentShader =
-			"precision mediump float;       \n" +
+	private float[][] mCoordinates = {
+			// FRONT
+			{
+					-1f, -1f, 1f,
+					1f, -1f, 1f,
+					-1f, 1f, 1f,
+					1f, 1f, 1f
+			},
+			// LEFT
+			{
+					-1f, -1f, -1f,
+					-1f, -1f, 1f,
+					-1f, 1f, -1f,
+					-1f, 1f, 1f
+			},
+			// BACK
+			{
+					-1f, -1f, -1f,
+					1f, -1f, -1f,
+					-1f, 1f, -1f,
+					1f, 1f, -1f
+			},
+			// RIGHT
+			{
+					1f, -1f, 1f,
+					1f, -1f, -1f,
+					1f, 1f, 1f,
+					1f, 1f, -1f
+			},
+			// TOP
+			{
+					-1f, 1f, 1f,
+					1f, 1f, 1f,
+					-1f, 1f, -1f,
+					1f, 1f, -1f
+			},
+			// BOTTOM
+			{
+					-1f, -1f, 1f,
+					1f, -1f, 1f,
+					-1f, -1f, -1f,
+					1f, -1f, -1f
+			}
+	};
 
-			"varying vec4 v_Color;          \n" +
+	private int mProgram;
+	private int[] mTextureIndexes;
 
-			"void main()                    \n" +
-			"{                              \n" +
-			"   gl_FragColor = v_Color;     \n" +
-			"}                              \n";
-
-	//	Matrices
 	private float[] mMVPMatrix = new float[16];
 	private float[] mModelMatrix = new float[16];
 	private float[] mViewMatrix = new float[16];
 	private float[] mProjectionMatrix = new float[16];
 
-	//	Indexes
-	private int mMVPMatrixIndex;
-	private int mPositionIndex;
-	private int mColorIndex;
+	private Context mContext;
+	private MenuItem[] mMenuItems;
+	private int mCurrentPosition = FRONT;
 
-	private static final int COORDINATES_PER_VERTEX = 3;
-	private static final int COLORS_PER_VERTEX = 4;
+	private int mRotationAngle;
+	private long mRotationStartTime;
+	private int mCurrentRotationAngle;
 
-	private float[] coordinates = {
-			 1.0f, 	 1.0f, 	-1.0f,
-			-1.0f,	 1.0f,	-1.0f,
-			-1.0f,	-1.0f,	-1.0f,
-			 1.0f,	-1.0f,	-1.0f,
-			 1.0f, 	 1.0f, 	 1.0f,
-			-1.0f,	 1.0f,	 1.0f,
-			-1.0f,	-1.0f,	 1.0f,
-			 1.0f,	-1.0f,	 1.0f
-	};
-
-	private float[] colors = {
-			1.0f, 0.0f, 0.0f, 1.0f,
-			0.0f, 1.0f, 0.0f, 1.0f,
-			0.0f, 0.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 0.0f, 1.0f,
-			0.0f, 1.0f, 1.0f, 1.0f,
-			1.0f, 0.0f, 1.0f, 1.0f,
-			0.0f, 0.0f, 0.0f, 1.0f,
-			1.0f, 1.0f, 1.0f, 1.0f
-	};
-
-	private short[] drawList = {
-			0, 1, 2,
-			0, 2, 3,
-			0, 7, 3,
-			0, 4, 7,
-			7, 6, 5,
-			7, 5, 4,
-			5, 4, 1,
-			1, 0, 4,
-			1, 2, 6,
-			1, 5, 6,
-			6, 2, 3,
-			6, 7, 3
-	};
-
-	private FloatBuffer vertexBuffer;
-	private FloatBuffer colorBuffer;
-	private ShortBuffer drawListBuffer;
-
-	private int program;
-
-	private float xAngle;
-	private float yAngle;
-
-	public CubeRenderer() {
-		vertexBuffer = ByteBuffer.allocateDirect(coordinates.length * ShaderHelper.FLOAT_BYTES_SIZE)
-				.order(ByteOrder.nativeOrder()).asFloatBuffer();
-		vertexBuffer.put(coordinates).position(0);
-
-		colorBuffer = ByteBuffer.allocateDirect(colors.length * ShaderHelper.FLOAT_BYTES_SIZE)
-				.order(ByteOrder.nativeOrder()).asFloatBuffer();
-		colorBuffer.put(colors).position(0);
-
-		drawListBuffer = ByteBuffer.allocateDirect(drawList.length * ShaderHelper.SHORT_BYTES_SIZE)
-				.order(ByteOrder.nativeOrder()).asShortBuffer();
-		drawListBuffer.put(drawList).position(0);
+	public CubeRenderer(Context mContext) {
+		this.mContext = mContext;
 	}
 
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-		GLES20.glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
+		for (int i = 0; i < mRectangles.length; i++) {
+			mRectangles[i].setTextureCoordinates(mTextureCoordinates);
+			mRectangles[i].setCoordinates(mCoordinates[i]);
+		}
 
-//		GLES20.glEnable(GLES20.GL_CULL_FACE);
-		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+		glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
 
-		final float eyeX = 0.0f;
-		final float eyeY = 0.0f;
-		final float eyeZ = 3.0f;
+		glEnable(GL_DEPTH_TEST);
 
-		final float lookX = 0.0f;
-		final float lookY = 0.0f;
-		final float lookZ = -5.0f;
+		Matrix.setIdentityM(mModelMatrix, 0);
 
-		final float upX = 0.0f;
-		final float upY = 1.0f;
-		final float upZ = 0.0f;
-
-		Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, lookX, lookY, lookZ, upX, upY, upZ);
-
-		program = ShaderHelper.linkProgram(
-			ShaderHelper.compileShader(vertexShader, GLES20.GL_VERTEX_SHADER),
-			ShaderHelper.compileShader(fragmentShader, GLES20.GL_FRAGMENT_SHADER)
+		mProgram = Helper.linkProgram(
+				Helper.compileShader(Rectangle.VERTEX_SHADER, GL_VERTEX_SHADER),
+				Helper.compileShader(Rectangle.FRAGMENT_SHADER, GL_FRAGMENT_SHADER)
 		);
 
-		glUseProgram(program);
+		mTextureIndexes = new int[mRectangles.length];
+		for (int i = 0; i < mTextureIndexes.length; i++)
+			mTextureIndexes[i] = Helper.loadTexture(mContext, mMenuItems[i].getDrawableRes());
 
-		mMVPMatrixIndex = glGetUniformLocation(program, "u_MVPMatrix");
-		mPositionIndex = glGetAttribLocation(program, "a_Position");
-		mColorIndex = glGetAttribLocation(program, "a_Color");
+		glUseProgram(mProgram);
 	}
 
 	@Override
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
-		GLES20.glViewport(0, 0, width, height);
+		glViewport(0, 0, width, height);
 
 		final float ratio = (float) width / height;
 		final float left = -ratio;
@@ -178,48 +157,78 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
 
 	@Override
 	public void onDrawFrame(GL10 gl) {
-		GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
+		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-		Matrix.setIdentityM(mModelMatrix, 0);
+//		final float eyeX = (float) (4 * Math.sin(Math.toRadians(mAzimuthalRotation)) * Math.cos(Math.toRadians(mZenithalRotation)));
+//		final float eyeY = (float) (4 * Math.sin(Math.toRadians(mAzimuthalRotation)) * Math.sin(Math.toRadians(mZenithalRotation)));
+//		final float eyeZ = (float) (4 * Math.cos(Math.toRadians(mAzimuthalRotation)));
 
-		Matrix.rotateM(mModelMatrix, 0, xAngle, 0.0f, 1.0f, 0.0f);
-		Matrix.rotateM(mModelMatrix, 0, yAngle, 1.0f, 0.0f, 0.0f);
-		drawCube();
-	}
+		if (SystemClock.uptimeMillis() > (mRotationStartTime + ROTATION_TIME)) {
+			mCurrentRotationAngle += mRotationAngle;
+			mRotationAngle = 0;
+		}
 
-	private void drawCube() {
-		vertexBuffer.position(0);
-		glVertexAttribPointer(mPositionIndex, COORDINATES_PER_VERTEX, GL_FLOAT, false,
-				COORDINATES_PER_VERTEX * ShaderHelper.FLOAT_BYTES_SIZE, vertexBuffer);
-		glEnableVertexAttribArray(mPositionIndex);
+		float delta = ((SystemClock.uptimeMillis() - mRotationStartTime) / ROTATION_TIME) * mRotationAngle;
 
-		colorBuffer.position(0);
-		glVertexAttribPointer(mColorIndex, COLORS_PER_VERTEX, GL_FLOAT, false,
-				COLORS_PER_VERTEX * ShaderHelper.FLOAT_BYTES_SIZE, colorBuffer);
-		glEnableVertexAttribArray(mColorIndex);
+		mRotationAngle += delta;
+		mCurrentRotationAngle += delta;
+
+		final float eyeX = (float) (Math.cos(Math.toRadians(mCurrentRotationAngle)) * 4f);
+		final float eyeY = 0f;
+		final float eyeZ = (float) (Math.sin(Math.toRadians(mCurrentRotationAngle)) * 4f);
+
+		final float lookX = 0.0f;
+		final float lookY = 0.0f;
+		final float lookZ = 0.0f;
+
+		final float upX = 0.0f;
+		final float upY = 1.0f;
+		final float upZ = 0.0f;
+
+		Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, lookX, lookY, lookZ, upX, upY, upZ);
 
 		Matrix.multiplyMM(mMVPMatrix, 0, mViewMatrix, 0, mModelMatrix, 0);
 		Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mMVPMatrix, 0);
 
-		GLES20.glUniformMatrix4fv(mMVPMatrixIndex, 1, false, mMVPMatrix, 0);
-
-		drawListBuffer.position(0);
-		glDrawElements(GL_TRIANGLES, drawList.length, GL_UNSIGNED_SHORT, drawListBuffer);
+		int i = 0;
+		for (Rectangle rectangle : mRectangles)
+			rectangle.draw(mMVPMatrix, mProgram, mTextureIndexes[i++]);
 	}
 
-	public float getyAngle() {
-		return yAngle;
+	public void setMenuItems(MenuItem[] menuItems) {
+		if (menuItems.length != mRectangles.length)
+			throw new IllegalArgumentException(String.format(Locale.getDefault(), "Set %d MenuItems", mRectangles.length));
+
+		mMenuItems = menuItems;
 	}
 
-	public void setyAngle(float yAngle) {
-		this.yAngle = yAngle;
+	public void onUp() {
+
 	}
 
-	public float getxAngle() {
-		return xAngle;
+	public void onDown() {
+
 	}
 
-	public void setxAngle(float xAngle) {
-		this.xAngle = xAngle;
+	public void onLeft() {
+		if (++mCurrentPosition > RIGHT)
+			mCurrentPosition = FRONT;
+
+		mRotationStartTime = SystemClock.uptimeMillis();
+		mRotationAngle = -90;
+	}
+
+	public void onRight() {
+		if (--mCurrentPosition < FRONT)
+			mCurrentPosition = RIGHT;
+
+		mRotationStartTime = SystemClock.uptimeMillis();
+		mRotationAngle = -90;
+	}
+
+	public void onSingleTap() {
+		View.OnClickListener clickListener = mMenuItems[mCurrentPosition].getListener();
+		if (clickListener != null)
+			clickListener.onClick(new View(mContext));
 	}
 }
