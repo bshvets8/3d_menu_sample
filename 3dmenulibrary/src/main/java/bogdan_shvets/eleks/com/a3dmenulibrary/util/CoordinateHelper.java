@@ -20,23 +20,33 @@ public class CoordinateHelper {
 
 		float[] result = new float[sphericalCoordinates.length];
 
-		for (int i = 0; i < sphericalCoordinates.length; i = i + 3) {
-			result[i] = (float) (sphericalCoordinates[i] * Math.sin(Math.toRadians(sphericalCoordinates[i + 1])) * Math.cos(Math.toRadians(sphericalCoordinates[i + 2])));
-			result[i + 1] = (float) (sphericalCoordinates[i] * Math.sin(Math.toRadians(sphericalCoordinates[i + 1])) * Math.sin(Math.toRadians(sphericalCoordinates[i + 2])));
-			result[i + 2] = (float) (sphericalCoordinates[i] * Math.cos(Math.toRadians(sphericalCoordinates[i + 1])));
+		float distanceFromCenter, zenithalAngle, azimuthalAngle;
+
+		for (int i = 0; i < sphericalCoordinates.length; i += 3) {
+			distanceFromCenter = sphericalCoordinates[i];
+			zenithalAngle = sphericalCoordinates[i + 1];
+			azimuthalAngle = sphericalCoordinates[i + 2];
+
+			float halfWidth = (float) Math.abs(Math.sin(Math.toRadians(azimuthalAngle / 2)) * distanceFromCenter * 2);
+
+			result[i + 1] = (azimuthalAngle < 0) ? -halfWidth : halfWidth;
+
+			result[i] =		(float) (distanceFromCenter * Math.sin(Math.toRadians(zenithalAngle)) * Math.cos(Math.toRadians(azimuthalAngle)));
+//			result[i + 1] = (float) (distanceFromCenter * Math.sin(Math.toRadians(zenithalAngle)) * Math.sin(Math.toRadians(azimuthalAngle)));
+			result[i + 2] = (float) (distanceFromCenter * Math.cos(Math.toRadians(zenithalAngle)));
 		}
 
 		return result;
 	}
 
-	public static float[] getSphericalCoordinatesForRectangle(float distanceFromCenter, float degrees) {
-		float half = degrees / 2;
+	public static float[] getSphericalCoordinatesForRectangle(float distanceFromCenter, float widthInDegrees, float offsetDegrees) {
+		float half = widthInDegrees / 2;
 
 		return new float[] {
-				distanceFromCenter, -half,  half,
-				distanceFromCenter,  half, -half,
-				distanceFromCenter, -half, -half,
-				distanceFromCenter,  half,  half
+				distanceFromCenter, -half + offsetDegrees, -half,
+				distanceFromCenter,  half + offsetDegrees, -half,
+				distanceFromCenter, -half + offsetDegrees,  half,
+				distanceFromCenter,  half + offsetDegrees,  half
 		};
 	}
 }

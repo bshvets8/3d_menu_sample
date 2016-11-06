@@ -134,8 +134,8 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
 		);
 
 		mTextureIndexes = new int[mRectangles.length];
-		for (int i = 0; i < mTextureIndexes.length; i++)
-			mTextureIndexes[i] = Helper.loadTexture(mContext, mMenuItems[i].getDrawableRes());
+//		for (int i = 0; i < mTextureIndexes.length; i++)
+//			mTextureIndexes[i] = Helper.loadTexture(mContext, mMenuItems[i].getDrawableRes());
 
 		glUseProgram(mProgram);
 	}

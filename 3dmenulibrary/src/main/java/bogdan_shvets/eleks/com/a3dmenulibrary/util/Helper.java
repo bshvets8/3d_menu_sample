@@ -1,9 +1,6 @@
 package bogdan_shvets.eleks.com.a3dmenulibrary.util;
 
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.support.annotation.DrawableRes;
 import android.support.annotation.IntDef;
 import android.util.Log;
 
@@ -96,17 +93,12 @@ public class Helper {
 		return program;
 	}
 
-	public static int loadTexture(Context context, @DrawableRes int resourceId) {
+	public static int loadTexture(Bitmap bitmap) {
 		final int[] textureHandle = new int[1];
 
 		glGenTextures(1, textureHandle, 0);
 
 		if (textureHandle[0] != 0) {
-			BitmapFactory.Options options = new BitmapFactory.Options();
-			options.inScaled = false;
-
-			Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resourceId, options);
-
 			glBindTexture(GL_TEXTURE_2D, textureHandle[0]);
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

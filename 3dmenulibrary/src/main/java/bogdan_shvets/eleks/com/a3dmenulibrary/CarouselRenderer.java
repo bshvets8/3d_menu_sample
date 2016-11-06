@@ -1,6 +1,7 @@
 package bogdan_shvets.eleks.com.a3dmenulibrary;
 
-import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 
@@ -26,8 +27,9 @@ import static android.opengl.GLES20.glViewport;
  */
 public class CarouselRenderer implements GLSurfaceView.Renderer {
 
-	private Rectangle mRectangle;
-	private Rectangle mRectangle1;
+	private static final float DISTANCE_FROM_CENTER = 3f;
+
+	private Rectangle[] mRectangles;
 	private final float[] mTextureCoordinates = {
 			0.0f, 1.0f,
 			1.0f, 1.0f,
@@ -36,30 +38,25 @@ public class CarouselRenderer implements GLSurfaceView.Renderer {
 	};
 
 	private int mProgram;
-	private int mTextureIndex;
+	private int[] mTextureIndexes;
 
 	private float[] mMVPMatrix = new float[16];
 	private float[] mModelMatrix = new float[16];
 	private float[] mViewMatrix = new float[16];
 	private float[] mProjectionMatrix = new float[16];
 
-	private Context mContext;
+	private Bitmap[] mBitmaps;
 
-	public CarouselRenderer(Context mContext) {
-		this.mContext = mContext;
-	}
+	private String mBackgroundColor = "#9E9E9E";
+	private float mRotation;
+	private float mScale = 5.0f;
 
-	float f = 0;
+	private boolean mWasInited = false;
+
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-		mRectangle = new Rectangle();
-		mRectangle1 = new Rectangle();
-		mRectangle.setCoordinates(CoordinateHelper.fromSpherical(CoordinateHelper.getSphericalCoordinatesForRectangle(2.0f, 90.0f)));
-		mRectangle1.setCoordinates(CoordinateHelper.fromSpherical(CoordinateHelper.getSphericalCoordinatesForRectangle(2.0f, 90.0f)));
-		mRectangle.setTextureCoordinates(mTextureCoordinates);
-		mRectangle1.setTextureCoordinates(mTextureCoordinates);
-
-		glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
+		int color = Color.parseColor(mBackgroundColor);
+		glClearColor(Color.red(color), Color.green(color), Color.blue(color), Color.alpha(color));
 
 //		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
@@ -68,8 +65,6 @@ public class CarouselRenderer implements GLSurfaceView.Renderer {
 				Helper.compileShader(Rectangle.VERTEX_SHADER, GL_VERTEX_SHADER),
 				Helper.compileShader(Rectangle.FRAGMENT_SHADER, GL_FRAGMENT_SHADER)
 		);
-
-		mTextureIndex = Helper.loadTexture(mContext, R.drawable.text1);
 
 		glUseProgram(mProgram);
 	}
@@ -93,10 +88,15 @@ public class CarouselRenderer implements GLSurfaceView.Renderer {
 	public void onDrawFrame(GL10 gl) {
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-		f++;
-		final float eyeX = (float) (4 * Math.sin(Math.toRadians(f / 5)) * Math.cos(Math.toRadians(0)));
+		if (!mWasInited) {
+			initRectangles();
+			initTextures();
+			mWasInited = true;
+		}
+
+		final float eyeX = (float) (mScale * Math.sin(Math.toRadians(mRotation)) * Math.cos(Math.toRadians(0)));
 		final float eyeY = 0.0f;
-		final float eyeZ = (float) (4 * Math.cos(Math.toRadians(f / 5)));
+		final float eyeZ = (float) (mScale * Math.cos(Math.toRadians(mRotation)));
 
 		final float lookX = 0.0f;
 		final float lookY = 0.0f;
@@ -113,7 +113,51 @@ public class CarouselRenderer implements GLSurfaceView.Renderer {
 		Matrix.multiplyMM(mMVPMatrix, 0, mViewMatrix, 0, mModelMatrix, 0);
 		Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mMVPMatrix, 0);
 
-		mRectangle.draw(mMVPMatrix, mProgram, mTextureIndex);
-		mRectangle1.draw(mMVPMatrix, mProgram, mTextureIndex);
+		if (mWasInited)
+			drawRectangles();
+	}
+
+	public void setBackgroundColor(String color) {
+		mBackgroundColor = color;
+	}
+
+	public float getRotation() {
+		return mRotation;
+	}
+
+	public void setRotation(float rotation) {
+		this.mRotation = rotation;
+	}
+
+	public void setBitmaps(Bitmap[] bitmaps) {
+		this.mBitmaps = bitmaps;
+		mTextureIndexes = new int[bitmaps.length];
+		mRectangles = new Rectangle[bitmaps.length];
+		mWasInited = false;
+	}
+
+	private void initRectangles() {
+		float offset = 360f / mRectangles.length;
+		float width = offset / 2;
+
+		float currentOffset = 0f;
+
+		for (int i = 0; i < mRectangles.length; i++, currentOffset += offset) {
+			mRectangles[i] = new Rectangle();
+			mRectangles[i].setTextureCoordinates(mTextureCoordinates);
+			mRectangles[i].setCoordinates(
+					CoordinateHelper.fromSpherical(
+							CoordinateHelper.getSphericalCoordinatesForRectangle(DISTANCE_FROM_CENTER, width, currentOffset)));
+		}
+	}
+
+	private void initTextures() {
+		for (int i = 0; i < mTextureIndexes.length; i++)
+			mTextureIndexes[i] = Helper.loadTexture(mBitmaps[i]);
+	}
+
+	private void drawRectangles() {
+		for (int i = 0; i < mRectangles.length; i++)
+			mRectangles[i].draw(mMVPMatrix, mProgram, mTextureIndexes[i]);
 	}
 }
