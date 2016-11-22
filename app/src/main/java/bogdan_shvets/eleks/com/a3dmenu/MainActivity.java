@@ -15,28 +15,28 @@ public class MainActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		CarouselGLSurfaceView glSurfaceView = new CarouselGLSurfaceView(this, new MenuItem[]{
 				new MenuItem() {{
-					setDrawableRes(R.drawable.texture);
-					setListener(new ClickListener(1));
+					setDrawableRes(R.drawable.green);
+					setListener(new ClickListener("green"));
 				}},
 				new MenuItem() {{
-					setDrawableRes(R.drawable.texture);
-					setListener(new ClickListener(2));
+					setDrawableRes(R.drawable.red);
+					setListener(new ClickListener("red"));
 				}},
 				new MenuItem() {{
-					setDrawableRes(R.drawable.texture);
-					setListener(new ClickListener(3));
+					setDrawableRes(R.drawable.blue);
+					setListener(new ClickListener("blue"));
 				}},
 				new MenuItem() {{
-					setDrawableRes(R.drawable.text1);
-					setListener(new ClickListener(4));
+					setDrawableRes(R.drawable.yellow);
+					setListener(new ClickListener("yellow"));
 				}},
 				new MenuItem() {{
-					setDrawableRes(R.drawable.text1);
-					setListener(new ClickListener(5));
+					setDrawableRes(R.drawable.aqua);
+					setListener(new ClickListener("aqua"));
 				}},
 				new MenuItem() {{
-					setDrawableRes(R.drawable.text1);
-					setListener(new ClickListener(6));
+					setDrawableRes(R.drawable.purple);
+					setListener(new ClickListener("purple"));
 				}}
 		});
 
@@ -45,15 +45,15 @@ public class MainActivity extends AppCompatActivity {
 
 	private class ClickListener implements View.OnClickListener {
 
-		private final int i;
+		private final String str;
 
-		private ClickListener(int i) {
-			this.i = i;
+		private ClickListener(String str) {
+			this.str = str;
 		}
 
 		@Override
 		public void onClick(View v) {
-			Toast.makeText(MainActivity.this, Integer.toString(i), Toast.LENGTH_SHORT).show();
+			Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
 		}
 	}
 }

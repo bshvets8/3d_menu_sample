@@ -29,10 +29,11 @@ public class CoordinateHelper {
 
 			float halfWidth = (float) Math.abs(Math.sin(Math.toRadians(azimuthalAngle / 2)) * distanceFromCenter * 2);
 
+//			Workaround to avoid improper coordinate converting
 			result[i + 1] = (azimuthalAngle < 0) ? -halfWidth : halfWidth;
+//			result[i + 1] = (float) (distanceFromCenter * Math.sin(Math.toRadians(zenithalAngle)) * Math.sin(Math.toRadians(azimuthalAngle)));
 
 			result[i] =		(float) (distanceFromCenter * Math.sin(Math.toRadians(zenithalAngle)) * Math.cos(Math.toRadians(azimuthalAngle)));
-//			result[i + 1] = (float) (distanceFromCenter * Math.sin(Math.toRadians(zenithalAngle)) * Math.sin(Math.toRadians(azimuthalAngle)));
 			result[i + 2] = (float) (distanceFromCenter * Math.cos(Math.toRadians(zenithalAngle)));
 		}
 

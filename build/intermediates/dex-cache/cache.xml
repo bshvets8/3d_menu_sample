@@ -1,3 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<items version="2" />
+<items version="2" >
 
+    <item
+        is-multidex="true"
+        jar="D:\hm\android_homework\3d_menu_sample\app\build\intermediates\incremental-classes\debug\instant-run-bootstrap.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.0"
+        sha1="b7449a43eafc05e1bad4a341e1ced6c92338876b">
+        <dex dex="D:\hm\android_homework\3d_menu_sample\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run-bootstrap_ca8e4a389b39df4f5f850a837d2192c1938d67e8\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\bohdan.shvets\AppData\Local\Android\sdk\extras\android\m2repository\com\android\support\support-annotations\23.4.0\support-annotations-23.4.0.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.0"
+        sha1="ffbe55fdb2bb456b1485831706a9eac3300bb6b8">
+        <dex dex="D:\hm\android_homework\3d_menu_sample\app\build\intermediates\transforms\dex\debug\folders\1000\10\support-annotations-23.4.0_67ac2e91ca36da67455261c3d66ee51809777133\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="D:\hm\android_homework\3d_menu_sample\app\build\intermediates\exploded-aar\com.android.support\animated-vector-drawable\23.4.0\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.0"
+        sha1="de4db3785756bfb0915a9f59a9b3f2fea7407be4">
+        <dex dex="D:\hm\android_homework\3d_menu_sample\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-animated-vector-drawable-23.4.0_97a31c2fe5a08a09942f65efb2e6baa09895204e\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="D:\hm\android_homework\3d_menu_sample\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\23.4.0\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.0"
+        sha1="548f06de403a9409f00554b3ee12a9fdea0e236c">
+        <dex dex="D:\hm\android_homework\3d_menu_sample\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-appcompat-v7-23.4.0_6110616bd59cbd37570ce3306394132081d0dfbb\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="D:\hm\android_homework\3d_menu_sample\app\build\intermediates\exploded-aar\com.android.support\support-vector-drawable\23.4.0\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.0"
+        sha1="c2c594cace5d83a3227b2b6e658ecbfd586d3ed9">
+        <dex dex="D:\hm\android_homework\3d_menu_sample\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-support-vector-drawable-23.4.0_be5b944ca068f86d0eaecfaa57a40ae8361478ff\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="D:\hm\android_homework\3d_menu_sample\app\build\intermediates\incremental-runtime-classes\debug\instant-run.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.0"
+        sha1="3050cc07c5317b35b73ae4d3babaef943cb2bc13">
+        <dex dex="D:\hm\android_homework\3d_menu_sample\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run_73dba8a065f5e1be59d6f03f2cd158419286d6dc\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="D:\hm\android_homework\3d_menu_sample\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.4.0\jars\libs\internal_impl-23.4.0.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.0"
+        sha1="ea3c07504d2c8f4b13aa17c45c1b68ed9c1c3674">
+        <dex dex="D:\hm\android_homework\3d_menu_sample\app\build\intermediates\transforms\dex\debug\folders\1000\10\internal_impl-23.4.0_d9dfc5958bc12500ef86bc0cf2ba197ed3a8c9f3\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="D:\hm\android_homework\3d_menu_sample\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.4.0\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.0"
+        sha1="67bd36ee9340ec7c254108936ad16b24bed160cc">
+        <dex dex="D:\hm\android_homework\3d_menu_sample\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-support-v4-23.4.0_ffdc824f582314b3fc28c0f197d0c4def49f60d4\classes.dex" />
+    </item>
+
+</items>

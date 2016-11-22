@@ -53,7 +53,8 @@ public class CarouselGLSurfaceView extends GLSurfaceView {
 			case MotionEvent.ACTION_UP: {
 				long clickDuration = Calendar.getInstance().getTimeInMillis() - startClickTime;
 				if (clickDuration < MAX_CLICK_DURATION) {
-					OnClickListener listener = mMenuItems[determineItemNumber()].getListener();
+					int itemIndex = determineItemNumber();
+					OnClickListener listener = mMenuItems[itemIndex].getListener();
 					if (listener != null)
 						listener.onClick(CarouselGLSurfaceView.this);
 				}
@@ -82,11 +83,12 @@ public class CarouselGLSurfaceView extends GLSurfaceView {
 	}
 
 	private int determineItemNumber() {
-		float rotation = mCarouselRenderer.getRotation() % 360f;
+		float distanceBetweenItems = 360f / mMenuItems.length;
+
+		float rotation = (mCarouselRenderer.getRotation() - distanceBetweenItems) % 360f;
 		if (rotation < 0)
 			rotation = 360f + rotation;
 
-		float distanceBetweenItems = 360f / mMenuItems.length;
 		int result = Math.round(rotation / distanceBetweenItems);
 		return result >= mMenuItems.length ? 0 : result;
 	}
